@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -20,6 +21,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
         limit: 100,
       },
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   controllers: [],
   providers: [],
