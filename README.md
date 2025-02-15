@@ -80,11 +80,7 @@ Cenários testados:
 
 -  📂  src/modules/csv  -  Manipulação  e  validação  de  arquivos  CSV.
 
-## 📄  Endpoints  Principais
-
--  GET  /movies  -  Retorna  todos  os  filmes.
-
--  GET  /movies/winners  -  Retorna  apenas  os  filmes  vencedores.
+## 📄  Endpoints
 
 -  GET  /producers/longest-interval  -  Produtor  com  maior  intervalo  entre  prêmios  consecutivos.
 
