@@ -5,17 +5,15 @@ API desenvolvida em **NestJS** para gerenciar filmes e produtores vencedores.
 
 ## 🚀 Tecnologias Utilizadas
 
--  **NestJS** - Framework Node.js para construção de APIs escaláveis.
+-  [**NestJS**](https://docs.nestjs.com/) - Framework Node.js para construção de APIs escaláveis.
 
--  **Prisma** - ORM para interagir com banco de dados.
+-  [**Prisma**](https://www.prisma.io/docs) - ORM para interagir com banco de dados.
 
--  **SQLite** - Banco de dados leve e embutido, armazenando os dados no próprio projeto.
+-  [**SQLite**](https://www.sqlite.org/docs.html) - Banco de dados leve e embutido, armazenando os dados no próprio projeto.
 
--  **csv-parser** - Biblioteca para leitura e manipulação de arquivos CSV.
+-  [**csv-parser**](https://www.npmjs.com/package/csv-parser) - Biblioteca para leitura e manipulação de arquivos CSV.
 
--  **Jest** - Framework de testes unitários.
-
--  **dotenv** - Gerenciamento de variáveis de ambiente.
+-  [**Jest**](https://jestjs.io/docs/getting-started) - Framework de testes unitários.
 
 ## 📥 Instalação
 
@@ -95,3 +93,7 @@ Cenários testados:
 ## 📌  Observações
 
 Ao  rodar  a  aplicação  em  modo  de  desenvolvimento,  um  banco  de  dados  de  exemplo  pode  ser  populado  automaticamente  a  partir  de  um  arquivo  CSV.
+
+## 💡 Sugestões
+
+- Criar um middleware/interceptor global para tratativas de erros, tratados quaisquer erros que ocorra na aplicação, exemplo: [NestJS Exception Filter](https://docs.nestjs.com/exception-filters)
