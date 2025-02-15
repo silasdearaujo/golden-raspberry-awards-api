@@ -8,26 +8,10 @@ generator client {
 }
 
 model Movie {
-  id        Int             @id @default(autoincrement())
+  id        String  @id @default(nanoid())
   year      Int
   title     String
   studios   String
-  winner    Boolean         @default(false)
-  producers MovieProducer[]
-}
-
-model Producer {
-  id     Int             @id @default(autoincrement())
-  name   String
-  movies MovieProducer[]
-}
-
-model MovieProducer {
-  movieId    Int
-  producerId Int
-
-  movie    Movie    @relation(fields: [movieId], references: [id])
-  producer Producer @relation(fields: [producerId], references: [id])
-
-  @@id([movieId, producerId])
+  winner    Boolean @default(false)
+  producers String
 }

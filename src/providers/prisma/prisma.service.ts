@@ -1,32 +1,121 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { CsvService } from '../csv/csv.service';
+import { MovieCsvRow } from 'src/interfaces/movie-csv-row.interface';
+import { ConfigService } from '@nestjs/config';
 
-/**
- * O `PrismaService` estende a funcionalidade do `PrismaClient` para gerenciar conexões ao banco de dados.
- *
- * Além disso, implementa os hooks do ciclo de vida de módulos do NestJS (`OnModuleInit` e `OnModuleDestroy`)
- * para abrir e fechar conexões adequadamente.
- */
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  /**
-   * Método chamado automaticamente pelo NestJS quando o módulo é inicializado.
-   * Aqui, estabelecemos a conexão com o banco de dados usando o Prisma.
-   *
-   * @throws Pode apresentar erros de conexão, caso não seja possível se conectar ao banco de dados.
-   */
-  async onModuleInit() {
-    await this.$connect();
+  private readonly logger = new Logger(PrismaService.name);
+
+  constructor(
+    private configService: ConfigService,
+    private readonly csvService: CsvService,
+  ) {
+    super();
   }
 
   /**
-   * Método chamado automaticamente pelo NestJS quando o módulo é destruído.
-   * Neste momento, a conexão com o banco de dados é finalizada.
+   * Executado automaticamente quando o módulo é inicializado.
+   * Estabelece conexão com o banco de dados e, se estiver em ambiente de desenvolvimento, popula a base de dados.
+   *
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await prismaService.onModuleInit();
    */
-  async onModuleDestroy() {
+  async onModuleInit(): Promise<void> {
+    await this.$connect();
+
+    if (process.env.NODE_ENV === 'development') {
+      await this.seedMoviesDatabase();
+    }
+  }
+
+  /**
+   * Executado automaticamente quando o módulo é destruído.
+   * Fecha a conexão com o banco de dados.
+   *
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await prismaService.onModuleDestroy();
+   */
+  async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
+  }
+
+  /**
+   * Popula a base de dados com informações de um arquivo CSV caso a base esteja vazia.
+   *
+   * - Verifica se o banco já está populado.
+   * - Valida o formato do CSV antes de importar os dados.
+   * - Converte os dados do CSV para o formato esperado e insere no banco.
+   *
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await prismaService.seedMoviesDatabase();
+   * // Logs possíveis:
+   * // "Database já está populada"
+   * // "CSV inválido! O processo de inserção foi abortado"
+   * // "CSV vazio! Nenhum registro foi inserido"
+   * // "Database populada com sucesso"
+   */
+  private async seedMoviesDatabase(): Promise<void> {
+    try {
+      const count = await this.movie.count();
+
+      if (count > 0) {
+        this.logger.log('Database já está populada');
+        return;
+      }
+
+      const filePath = 'database/movies.csv';
+      const expectedColumns = ['year', 'title', 'studios', 'producers'];
+
+      // Valida a estrutura do CSV
+      const isValid = await this.csvService.validateCsvLayout(
+        filePath,
+        expectedColumns,
+      );
+
+      if (!isValid) {
+        this.logger.error('CSV inválido! O processo de inserção foi abortado');
+        return;
+      }
+
+      // Lê e processa os dados do CSV
+      const csvData =
+        await this.csvService.parseCsvFileFromLocalPath<MovieCsvRow>(filePath);
+
+      const movies = csvData.map((row) => ({
+        year: parseInt(row.year, 10),
+        title: row.title,
+        studios: row.studios,
+        producers: String(row.producers ?? ''),
+        winner: row.winner?.toLowerCase() === 'yes',
+      }));
+
+      if (movies.length === 0) {
+        this.logger.log('CSV vazio! Nenhum registro foi inserido');
+        return;
+      }
+
+      // Insere os dados na base de dados
+      await this.movie.createMany({ data: movies });
+
+      this.logger.log('Database populada com sucesso');
+    } catch (error) {
+      this.logger.error('Erro ao popular database', error);
+    }
   }
 }

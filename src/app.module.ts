@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PrismaModule } from './providers/prisma/prisma.module';
+import { ProducersModule } from './modules/producers/producers.module';
 
 @Module({
   imports: [
+    PrismaModule,
     ThrottlerModule.forRoot([
       {
         name: 'short',
@@ -24,6 +27,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ProducersModule,
   ],
   controllers: [],
   providers: [],

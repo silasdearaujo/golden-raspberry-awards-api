@@ -2,59 +2,49 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import * as csv from 'csv-parser';
 
-/**
- * O `CsvService` é responsável pela leitura de arquivos CSV e conversão de seu conteúdo em arrays
- * de objetos JSON. Ele faz uso da biblioteca `csv-parser` para processar cada linha do arquivo.
- */
 @Injectable()
 export class CsvService {
   private readonly logger = new Logger(CsvService.name);
 
   /**
-   * Lê um arquivo CSV a partir de um caminho local e retorna seu conteúdo como um array de objetos JSON.
+   * Lê e converte um arquivo CSV localizado no caminho especificado.
    *
-   * @param filePath - Caminho (relativo ou absoluto) do arquivo CSV no sistema de arquivos.
+   * - Lê o arquivo linha por linha.
+   * - Converte os dados do CSV para um array de objetos.
+   * - Utiliza `;` como separador padrão.
    *
-   * @returns Retorna uma `Promise<any[]>` que, ao ser resolvida, contém um array de objetos JSON.
-   * Cada objeto representa uma linha do CSV, onde as chaves do objeto são os nomes das colunas do CSV.
+   * @template T - Tipo dos objetos do array retornado.
+   * @param {string} filePath - Caminho do arquivo CSV.
+   * @returns {Promise<T[]>} - Um array de objetos representando os dados do CSV.
    *
    * @example
-   * ```ts
-   * // Exemplo de uso em um Controller ou outro serviço
-   * const data = await this.csvService.parseCsvFileFromLocalPath('database/movies.csv');
+   * const data = await csvService.parseCsvFileFromLocalPath<MovieCsvRow>('database/movies.csv');
    * console.log(data);
-   * // Saída esperada (exemplo):
-   * // [
-   * //   { "title": "O Poderoso Chefão", "year": "1972", "studios": "Associated Film Distribution", "producers": "Allan Carr", "winner": "yes" },
-   * //   { "title": "Clube da Luta", "year": "1999", "studios": "Universal Studios, PolyGram", "producers": "Dyson Lovell", "winner": null },
-   * //   ...
-   * // ]
-   * ```
-   *
-   * @throws Lança um erro (rejeita a Promise) caso o arquivo não seja encontrado ou haja falhas
-   *         na leitura/conversão do CSV.
+   * // Saída esperada:
+   * [
+   *   { year: '2020', title: 'Movie Title', studios: 'Studio Name', producers: 'Producer Name', winner: 'yes' },
+   *   { year: '2019', title: 'Another Movie', studios: 'Another Studio', producers: 'Another Producer', winner: 'no' }
+   * ]
    */
-  async parseCsvFileFromLocalPath(filePath: string): Promise<any[]> {
+  async parseCsvFileFromLocalPath<T = any>(filePath: string): Promise<T[]> {
     return new Promise((resolve, reject) => {
       const results: any[] = [];
 
       this.logger.log(`Convertendo CSV do caminho: ${filePath}`);
 
       createReadStream(filePath)
-        .pipe(csv())
+        .pipe(csv({ separator: ';' }))
         .on('data', (data) => {
           results.push(data);
         })
         .on('end', () => {
           resolve(results);
-
           this.logger.log(
             `Sucesso ao converter CSV do caminho: ${filePath}, total de registros: ${results.length}`,
           );
         })
         .on('error', (error) => {
           reject(error);
-
           this.logger.error(
             `Erro ao converter CSV do caminho: ${filePath}: ${error.message}`,
           );
@@ -63,27 +53,23 @@ export class CsvService {
   }
 
   /**
-   * Valida se o CSV possui todas as colunas esperadas no cabeçalho.
+   * Valida se um arquivo CSV possui todas as colunas esperadas.
    *
-   * @param filePath - Caminho do arquivo CSV no sistema de arquivos (pode ser relativo ou absoluto).
-   * @param expectedColumns - Lista de colunas que devem estar presentes.
+   * - Lê apenas o cabeçalho do arquivo.
+   * - Verifica se todas as colunas esperadas estão presentes.
+   * - Retorna `true` se todas as colunas forem encontradas, `false` caso contrário.
    *
-   * @returns `Promise<boolean>`:
-   *          - `true` se o arquivo contiver todas as colunas esperadas,
-   *          - `false` caso contrário (ou se houver algum erro de leitura).
+   * @param {string} filePath - Caminho do arquivo CSV.
+   * @param {string[]} expectedColumns - Lista de colunas esperadas.
+   * @returns {Promise<boolean>} - `true` se o layout do CSV for válido, `false` se houver colunas ausentes ou erro de leitura.
    *
    * @example
-   * ```ts
-   * const isValid = await this.csvService.validateCsvLayout(
-   *   'database/movies.csv',
-   *   ['title', 'year', 'director']
-   * );
-   * if (isValid) {
-   *   console.log('Layout está correto!');
-   * } else {
-   *   console.log('Layout inválido ou erro ao ler o arquivo!');
-   * }
-   * ```
+   * const isValid = await csvService.validateCsvLayout('database/movies.csv', ['year', 'title', 'studios', 'producers']);
+   * console.log(isValid); // true ou false
+   *
+   * @example
+   * // Caso o arquivo tenha colunas faltando, um log será gerado:
+   * // "Faltando colunas: [winner] no arquivo: database/movies.csv. Colunas encontradas: [year, title, studios, producers]."
    */
   async validateCsvLayout(
     filePath: string,
@@ -93,9 +79,8 @@ export class CsvService {
       let isValid = false;
 
       const stream = createReadStream(filePath)
-        .pipe(csv())
+        .pipe(csv({ separator: ';' }))
         .on('headers', (headers: string[]) => {
-          //
           const missingColumns = expectedColumns.filter(
             (col) => !headers.includes(col),
           );
@@ -110,15 +95,19 @@ export class CsvService {
             );
           }
 
-          stream.destroy();
+          resolve(isValid);
+          stream.destroy(); // Fecha o stream corretamente
         })
         .on('error', (error) => {
           this.logger.error(
             `Erro ao validar layout do arquivo: ${filePath}: ${error.message}`,
           );
+          resolve(false);
         })
         .on('end', () => {
-          resolve(isValid);
+          if (!isValid) {
+            resolve(false);
+          }
         });
     });
   }
