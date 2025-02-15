@@ -70,15 +70,15 @@ Cenários testados:
   - deve retornar o produtor com o MENOR intervalo entre prêmios consecutivos
   - deve retornar null se nenhum produtor tiver múltiplos prêmios
 
-## 📁  Estrutura  do  Projeto
+## 📁  Estrutura base do  Projeto
+
+-  📂  src/providers/prisma  -  Configuração  do  banco  de  dados.
+
+-  📂  src/providers/csv  -  Manipulação  e  validação  de  arquivos  CSV.
 
 -  📂  src/modules/movies  -  Gerencia  os  filmes  e  prêmios.
 
 -  📂  src/modules/producers  -  Lida  com  cálculos  de  intervalos  de  prêmios.
-
--  📂  src/providers/prisma  -  Configuração  do  banco  de  dados.
-
--  📂  src/modules/csv  -  Manipulação  e  validação  de  arquivos  CSV.
 
 ## 📄  Endpoints
 
