@@ -15,6 +15,10 @@ API desenvolvida em **NestJS** para gerenciar filmes e produtores vencedores.
 
 -  [**Jest**](https://jestjs.io/docs/getting-started) - Framework de testes unitários.
 
+## ‼️ Requisitos de sistema
+
+- [Node.js](https://nodejs.org/pt): Versão 14.x ou superior.
+
 ## 📥 Instalação
 
 ```sh
@@ -92,4 +96,4 @@ Ao  rodar  a  aplicação  em  modo  de  desenvolvimento,  um  banco  de  dados 
 
 ## 💡 Sugestões
 
-- Criar um middleware/interceptor global para tratativas de erros, tratados quaisquer erros que ocorra na aplicação, exemplo: [NestJS Exception Filter](https://docs.nestjs.com/exception-filters)
+- Criar um middleware/interceptor global para tratativas de erros, tratando quaisquer erros que ocorram na aplicação, exemplo: [NestJS Exception Filter](https://docs.nestjs.com/exception-filters)
