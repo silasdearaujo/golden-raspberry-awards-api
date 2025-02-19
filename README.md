@@ -37,7 +37,9 @@ Rodando em modo de desenvolvimento:
 npm  run  start:dev
 ```
 
-A base será automaticamente carrega se o arquivo movies.csv estiver presente na pasta database, na inicialização do PrismaModule (ORM)
+A base será automaticamente carregada em memória se o arquivo movies.csv estiver presente na pasta database, na inicialização do PrismaModule (ORM)
+
+Caso não seja alterado no .env, estará rodando pelo endereço http://localhost:3000
 
 ## 🛠  Configuração  do  Banco  de  Dados
 
@@ -86,7 +88,7 @@ Cenários testados:
 
 ## 📄  Endpoints
 
--  GET  /producers/intervals  -  Produtores com menor e maior intervalo de prêmios consecutivos.
+-  GET  /producers/intervals  -  Produtores com menor e maior intervalo de prêmios consecutivos (URL completa: http://localhost:3000/producers/intervals).
 
 ## 📌  Observações
 
