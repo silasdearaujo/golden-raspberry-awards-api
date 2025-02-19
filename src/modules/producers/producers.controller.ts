@@ -5,13 +5,8 @@ import { ProducersService } from './producers.service';
 export class ProducersController {
   constructor(private readonly producersService: ProducersService) {}
 
-  @Get('longest-interval')
-  async getProducerWithLongestInterval() {
-    return this.producersService.getProducerWithLongestInterval();
-  }
-
-  @Get('shortest-interval')
-  async getProducerWithShortestInterval() {
-    return this.producersService.getProducerWithShortestInterval();
+  @Get('intervals')
+  async getProducersIntervals() {
+    return this.producersService.getProducersIntervals();
   }
 }

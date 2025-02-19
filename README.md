@@ -86,9 +86,7 @@ Cenários testados:
 
 ## 📄  Endpoints
 
--  GET  /producers/longest-interval  -  Produtor  com  maior  intervalo  entre  prêmios  consecutivos.
-
--  GET  /producers/shortest-interval  -  Produtor  com  menor  intervalo  entre  prêmios  consecutivos.
+-  GET  /producers/intervals  -  Produtores com menor e maior intervalo de prêmios consecutivos.
 
 ## 📌  Observações
 

@@ -9,59 +9,39 @@ export class ProducersService {
   constructor(private moviesService: MoviesService) {}
 
   /**
-   * Calcula o produtor com o maior ou menor intervalo entre prêmios consecutivos.
+   * Retorna um objeto contendo:
+   * - min: lista de produtores com o menor intervalo
+   * - max: lista de produtores com o maior intervalo
    *
-   * @param {boolean} findMax - Define se deve buscar o maior (`true`) ou menor (`false`) intervalo.
-   * @returns {Promise<ProducerInterval | null>} - Retorna o produtor correspondente ou `null` caso não haja produtores com prêmios consecutivos.
-   *
-   * @example
-   * const result = await producersService.getProducerInterval(true);
-   * console.log(result);
-   * // Saída para maior intervalo:
+   * Formato de retorno:
    * {
-   *   producer: 'John Doe',
-   *   interval: 25,
-   *   previousWin: 1995,
-   *   followingWin: 2020
-   * }
-   *
-   * const result2 = await producersService.getProducerInterval(false);
-   * console.log(result2);
-   * // Saída para menor intervalo:
-   * {
-   *   producer: 'Jane Smith',
-   *   interval: 4,
-   *   previousWin: 2001,
-   *   followingWin: 2005
+   *   min: ProducerInterval[],
+   *   max: ProducerInterval[]
    * }
    */
-  private async getProducerInterval(
-    findMax: boolean,
-  ): Promise<ProducerInterval | null> {
+  async getProducersIntervals() {
     const winningMovies = await this.moviesService.getAllWinningMovies();
+
     const producerMap: Record<string, number[]> = {};
 
     for (const movie of winningMovies) {
-      const producerRaw = movie.producers as string;
+      if (!movie.producers) continue;
 
-      if (!producerRaw || producerRaw.trim() === '') continue;
+      const adjustedProducers = movie.producers
+        .replace(/\s+and\s+/gi, ', ')
+        .split(',')
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0);
 
-      const producers = producerRaw.split(',').map((p) => p.trim());
-
-      for (const prod of producers) {
-        if (!prod) continue;
-
-        if (!producerMap[prod]) {
-          producerMap[prod] = [];
+      for (const producer of adjustedProducers) {
+        if (!producerMap[producer]) {
+          producerMap[producer] = [];
         }
-        producerMap[prod].push(movie.year);
+        producerMap[producer].push(movie.year);
       }
     }
 
-    let bestProducer: string | null = null;
-    let bestInterval = findMax ? 0 : Infinity;
-    let previousWin = 0;
-    let followingWin = 0;
+    const allIntervals: ProducerInterval[] = [];
 
     for (const [producer, years] of Object.entries(producerMap)) {
       if (years.length < 2) continue;
@@ -71,67 +51,28 @@ export class ProducersService {
       for (let i = 0; i < sortedYears.length - 1; i++) {
         const interval = sortedYears[i + 1] - sortedYears[i];
 
-        if (
-          (findMax && interval > bestInterval) ||
-          (!findMax && interval < bestInterval)
-        ) {
-          bestInterval = interval;
-          bestProducer = producer;
-          previousWin = sortedYears[i];
-          followingWin = sortedYears[i + 1];
-        }
+        allIntervals.push({
+          producer,
+          interval,
+          previousWin: sortedYears[i],
+          followingWin: sortedYears[i + 1],
+        });
       }
     }
 
-    if (!bestProducer) {
-      return null;
+    if (allIntervals.length === 0) {
+      return { min: [], max: [] };
     }
 
+    const minInterval = Math.min(...allIntervals.map((item) => item.interval));
+    const maxInterval = Math.max(...allIntervals.map((item) => item.interval));
+
+    const min = allIntervals.filter((item) => item.interval === minInterval);
+    const max = allIntervals.filter((item) => item.interval === maxInterval);
+
     return {
-      producer: bestProducer,
-      interval: bestInterval,
-      previousWin,
-      followingWin,
+      min,
+      max,
     };
-  }
-
-  /**
-   * Retorna o produtor que teve o maior intervalo entre duas vitórias consecutivas.
-   *
-   * @returns {Promise<ProducerInterval | null>} - O produtor com o maior intervalo ou `null` caso não haja.
-   *
-   * @example
-   * const result = await producersService.getProducerWithLongestInterval();
-   * console.log(result);
-   * // Saída esperada:
-   * {
-   *   producer: 'John Doe',
-   *   interval: 25,
-   *   previousWin: 1995,
-   *   followingWin: 2020
-   * }
-   */
-  async getProducerWithLongestInterval(): Promise<ProducerInterval | null> {
-    return this.getProducerInterval(true);
-  }
-
-  /**
-   * Retorna o produtor que teve o menor intervalo entre duas vitórias consecutivas.
-   *
-   * @returns {Promise<ProducerInterval | null>} - O produtor com o menor intervalo ou `null` caso não haja.
-   *
-   * @example
-   * const result = await producersService.getProducerWithShortestInterval();
-   * console.log(result);
-   * // Saída esperada:
-   * {
-   *   producer: 'Jane Smith',
-   *   interval: 4,
-   *   previousWin: 2001,
-   *   followingWin: 2005
-   * }
-   */
-  async getProducerWithShortestInterval(): Promise<ProducerInterval | null> {
-    return this.getProducerInterval(false);
   }
 }

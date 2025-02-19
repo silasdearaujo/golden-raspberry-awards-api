@@ -35,9 +35,7 @@ export class PrismaService
   async onModuleInit(): Promise<void> {
     await this.$connect();
 
-    if (process.env.NODE_ENV === 'development') {
-      await this.seedMoviesDatabase();
-    }
+    await this.seedMoviesDatabase();
   }
 
   /**
@@ -72,17 +70,13 @@ export class PrismaService
    */
   private async seedMoviesDatabase(): Promise<void> {
     try {
-      const count = await this.movie.count();
-
-      if (count > 0) {
-        this.logger.log('Database já está populada');
-        return;
-      }
-
       const filePath = 'database/movies.csv';
       const expectedColumns = ['year', 'title', 'studios', 'producers'];
 
-      // Valida a estrutura do CSV
+      // Apaga todo o conteúdo da tabela antes de inserir novamente
+      await this.movie.deleteMany({});
+
+      // Valida a estrutura do CSV (opcional)
       const isValid = await this.csvService.validateCsvLayout(
         filePath,
         expectedColumns,
