@@ -26,12 +26,16 @@ npm  install
 ```
 
 ## ▶️  Executando  a  Aplicação
-Para  rodar  o  projeto,  utilize:
+Para  _rodar_  o  projeto,  utilize:
+
+Crie um arquivo _.env_ na raiz do projeto copiado o conteúdo de _.env.example_ (que se encontra também na raiz do projeto).
+
+Após isso execute os comandos para _startar_ a API.
 
 ```sh
 npm run start
 ```
-Rodando em modo de desenvolvimento:
+_Rodando_ em modo de desenvolvimento:
 
 ```sh
 npm  run  start:dev
@@ -39,7 +43,7 @@ npm  run  start:dev
 
 A base será automaticamente carregada em memória se o arquivo movies.csv estiver presente na pasta database, na inicialização do PrismaModule (ORM)
 
-Caso não seja alterado no .env, estará rodando pelo endereço http://localhost:3000
+Caso não seja alterado no _.env_, estará rodando pelo endereço http://localhost:3000
 
 ## 🛠  Configuração  do  Banco  de  Dados
 
