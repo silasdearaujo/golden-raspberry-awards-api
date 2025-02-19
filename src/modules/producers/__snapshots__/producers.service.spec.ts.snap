@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Producers Intervals (e2e) /producers/intervals (GET) - Deve retornar min e max de acordo com o CSV 1`] = `
+{
+  "max": [
+    {
+      "followingWin": 2015,
+      "interval": 13,
+      "previousWin": 2002,
+      "producer": "Matthew Vaughn",
+    },
+  ],
+  "min": [
+    {
+      "followingWin": 1991,
+      "interval": 1,
+      "previousWin": 1990,
+      "producer": "Joel Silver",
+    },
+  ],
+}
+`;
