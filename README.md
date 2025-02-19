@@ -65,16 +65,8 @@ npm  run  test
 ```
 
 Cenários testados:
-1. Movies:
-  - deve retornar todos os filmes
-  - deve retornar apenas os filmes vencedores
-  - deve retornar um array vazio se não houver filmes no banco
-  - deve retornar um array vazio se não houver filmes vencedores
-
-2. Producers:
-  - deve retornar o produtor com o MAIOR intervalo entre prêmios consecutivos
-  - deve retornar o produtor com o MENOR intervalo entre prêmios consecutivos
-  - deve retornar null se nenhum produtor tiver múltiplos prêmios
+1. Producers e2e:
+  - /producers/intervals (GET) - Deve retornar min e max de acordo com o CSV padrão
 
 ## 📁  Estrutura base do  Projeto
 
